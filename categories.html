@@ -96,8 +96,19 @@
     function saveCategoryImages() { localStorage.setItem(CATS_IMAGES_KEY, JSON.stringify(categoryImages || {})); }
     function loadCategoryImages() { try { const raw=localStorage.getItem(CATS_IMAGES_KEY); if (raw) { const obj=JSON.parse(raw); if (obj && typeof obj==='object') return obj; } } catch {} return {}; }
 
+    window.GH_OWNER = window.GH_OWNER || (window.DATA_REPO && window.DATA_REPO.owner) || '';
+    window.GH_REPO = window.GH_REPO || (window.DATA_REPO && window.DATA_REPO.repo) || '';
+    window.GH_BRANCH = window.GH_BRANCH || (window.DATA_REPO && window.DATA_REPO.branch) || 'main';
+    const isGhEnabled = () => Boolean(window.GH_OWNER && window.GH_REPO);
+    const ghUrls = (path) => { const t=Date.now(); const p=String(path||'').replace(/^\//,''); return [
+      `https://raw.githubusercontent.com/${window.GH_OWNER}/${window.GH_REPO}/${window.GH_BRANCH}/${p}?t=${t}`,
+      `https://cdn.jsdelivr.net/gh/${window.GH_OWNER}/${window.GH_REPO}@${window.GH_BRANCH}/${p}?t=${t}`
+    ]; };
+    async function initDataRepoConfig(){ if (isGhEnabled()) return; try { const resp=await fetch('/api/config'); if (resp.ok){ const j=await resp.json(); if (j&&j.ok&&j.owner&&j.repo){ window.GH_OWNER=j.owner; window.GH_REPO=j.repo; window.GH_BRANCH=j.branch||'main'; } } } catch {} }
+    async function loadJson(path){ if (isGhEnabled()){ const urls=ghUrls(path); for(let i=0;i<urls.length;i++){ try{ const r=await fetch(urls[i],{cache:'no-store'}); if(r.ok) return await r.json(); } catch{} } } const r=await fetch(path,{cache:'no-store'}); if(!r.ok) throw new Error('failed_to_load_'+path); return await r.json(); }
+    function resolveAssetUrl(path){ const raw=String(path||'').trim(); if(!raw) return ''; if(!isGhEnabled()) return raw; const rel=raw.replace(/^\//,''); return `https://raw.githubusercontent.com/${window.GH_OWNER}/${window.GH_REPO}/${window.GH_BRANCH}/${rel}`; }
     async function loadCategoriesFromAssets() {
-      try { const resp = await fetch('assets/categories.json', { cache:'no-store' }); if (resp.ok) { const data=await resp.json(); if (Array.isArray(data)) return data; } } catch {}
+      try { const data = await loadJson('assets/categories.json'); if (Array.isArray(data)) return data; } catch {}
       return [];
     }
 
@@ -109,7 +120,7 @@
 
     async function loadItemsForDerive() {
       try { const raw=localStorage.getItem(STORAGE_KEY); if (raw) { const arr=JSON.parse(raw); if (Array.isArray(arr)) return arr; } } catch {}
-      try { const resp=await fetch('assets/menu.json',{cache:'no-store'}); if (resp.ok) { const data=await resp.json(); if (Array.isArray(data)) return data; } } catch {}
+      try { const data=await loadJson('assets/menu.json'); if (Array.isArray(data)) return data; } catch {}
       return [];
     }
 
@@ -120,7 +131,7 @@
       els.catsList.innerHTML = filtered.map((c,i)=>{ const realIdx = categories.indexOf(c); const isFirst = realIdx===0; const isLast = realIdx===categories.length-1; return `
         <li class="cat-item">
           <div class="cat-left">
-            <img src="${(categoryImages && categoryImages[c]) || ''}" alt="صورة ${c}" class="cat-thumb" onerror="this.style.display='none'" style="${(categoryImages && categoryImages[c]) ? '' : 'display:none;'}" />
+            <img src="${(() => { const s = resolveAssetUrl((categoryImages && categoryImages[c]) || ''); return s; })()}" alt="صورة ${c}" class="cat-thumb" onerror="this.style.display='none'" style="${(() => { const s = resolveAssetUrl((categoryImages && categoryImages[c]) || ''); return s ? '' : 'display:none;'; })()}" />
             <span class="text-gray-800 text-sm sm:text-base">${c}</span>
           </div>
           <div class="actions">
@@ -166,6 +177,7 @@
     els.catImageFileInput.addEventListener('change', async ()=>{ const file = els.catImageFileInput.files[0]; if (!file || !pendingCatImageName) return; const original = els.catsUploadStatus.textContent; els.catsUploadStatus.textContent='جارِ الرفع...'; try { const dataUrl = await fileToDataURL(file); const resp = await fetch(UPLOAD_ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ filename:file.name, data:dataUrl }) }); const json = await resp.json().catch(()=>({})); if (!resp.ok || !json.ok || !json.path) throw new Error(json.error||'فشل الرفع'); categoryImages[pendingCatImageName] = json.path; saveCategoryImages(); renderCatsList(); els.catsUploadStatus.textContent='تم الرفع ✓'; } catch { els.catsUploadStatus.textContent='فشل الرفع'; } finally { pendingCatImageName=null; setTimeout(()=>{ els.catsUploadStatus.textContent=original||''; },1500); els.catImageFileInput.value=''; } });
 
     (async ()=>{
+      await initDataRepoConfig();
       categories = loadCategories();
       categoryImages = loadCategoryImages();
       if (!categories.length) {

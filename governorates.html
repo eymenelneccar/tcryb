@@ -81,8 +81,18 @@
       return { name, fee };
     }
 
+    window.GH_OWNER = window.GH_OWNER || (window.DATA_REPO && window.DATA_REPO.owner) || '';
+    window.GH_REPO = window.GH_REPO || (window.DATA_REPO && window.DATA_REPO.repo) || '';
+    window.GH_BRANCH = window.GH_BRANCH || (window.DATA_REPO && window.DATA_REPO.branch) || 'main';
+    const isGhEnabled = () => Boolean(window.GH_OWNER && window.GH_REPO);
+    const ghUrls = (path) => { const t=Date.now(); const p=String(path||'').replace(/^\//,''); return [
+      `https://raw.githubusercontent.com/${window.GH_OWNER}/${window.GH_REPO}/${window.GH_BRANCH}/${p}?t=${t}`,
+      `https://cdn.jsdelivr.net/gh/${window.GH_OWNER}/${window.GH_REPO}@${window.GH_BRANCH}/${p}?t=${t}`
+    ]; };
+    async function initDataRepoConfig(){ if (isGhEnabled()) return; try { const resp=await fetch('/api/config'); if (resp.ok){ const j=await resp.json(); if (j&&j.ok&&j.owner&&j.repo){ window.GH_OWNER=j.owner; window.GH_REPO=j.repo; window.GH_BRANCH=j.branch||'main'; } } } catch {} }
+    async function loadJson(path){ if (isGhEnabled()){ const urls=ghUrls(path); for(let i=0;i<urls.length;i++){ try{ const r=await fetch(urls[i],{cache:'no-store'}); if(r.ok) return await r.json(); } catch{} } } const r=await fetch(path,{cache:'no-store'}); if(!r.ok) throw new Error('failed_to_load_'+path); return await r.json(); }
     async function loadGovernoratesFromAssets() {
-      try { const resp = await fetch('assets/governorates.json', { cache:'no-store' }); if (resp.ok) { const data = await resp.json(); if (Array.isArray(data)) return data.map(sanitizeGovEntry).filter(Boolean); } } catch {}
+      try { const data = await loadJson('assets/governorates.json'); if (Array.isArray(data)) return data.map(sanitizeGovEntry).filter(Boolean); } catch {}
       return [];
     }
 
@@ -153,6 +163,7 @@
     }
 
     (async ()=>{
+      await initDataRepoConfig();
       const fromAssets = await loadGovernoratesFromAssets();
       if (Array.isArray(fromAssets) && fromAssets.length) {
         governorates = fromAssets;

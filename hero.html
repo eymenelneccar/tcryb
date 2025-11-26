@@ -113,9 +113,21 @@
       return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); });
     }
 
+    window.GH_OWNER = window.GH_OWNER || (window.DATA_REPO && window.DATA_REPO.owner) || '';
+    window.GH_REPO = window.GH_REPO || (window.DATA_REPO && window.DATA_REPO.repo) || '';
+    window.GH_BRANCH = window.GH_BRANCH || (window.DATA_REPO && window.DATA_REPO.branch) || 'main';
+    const isGhEnabled = () => Boolean(window.GH_OWNER && window.GH_REPO);
+    const ghUrls = (path) => { const t=Date.now(); const p=String(path||'').replace(/^\//,''); return [
+      `https://raw.githubusercontent.com/${window.GH_OWNER}/${window.GH_REPO}/${window.GH_BRANCH}/${p}?t=${t}`,
+      `https://cdn.jsdelivr.net/gh/${window.GH_OWNER}/${window.GH_REPO}@${window.GH_BRANCH}/${p}?t=${t}`
+    ]; };
+    async function initDataRepoConfig(){ if (isGhEnabled()) return; try { const resp=await fetch('/api/config'); if (resp.ok){ const j=await resp.json(); if (j&&j.ok&&j.owner&&j.repo){ window.GH_OWNER=j.owner; window.GH_REPO=j.repo; window.GH_BRANCH=j.branch||'main'; } } } catch {} }
+    async function loadJson(path){ if (isGhEnabled()){ const urls=ghUrls(path); for(let i=0;i<urls.length;i++){ try{ const r=await fetch(urls[i],{cache:'no-store'}); if(r.ok) return await r.json(); } catch{} } } const r=await fetch(path,{cache:'no-store'}); if(!r.ok) throw new Error('failed_to_load_'+path); return await r.json(); }
+    function resolveAssetUrl(path){ const raw=String(path||'').trim(); if(!raw) return ''; if(!isGhEnabled()) return raw; const rel=raw.replace(/^\//,''); return `https://raw.githubusercontent.com/${window.GH_OWNER}/${window.GH_REPO}/${window.GH_BRANCH}/${rel}`; }
+
     function updateHeroPreview() {
-      const imgUrl = (els.heroImage && els.heroImage.value) || '';
-      const vidUrl = (els.heroVideo && els.heroVideo.value) || '';
+      const imgUrl = resolveAssetUrl((els.heroImage && els.heroImage.value) || '');
+      const vidUrl = resolveAssetUrl((els.heroVideo && els.heroVideo.value) || '');
       const type = getMediaType();
       if (type === 'video' && vidUrl) {
         if (els.heroPreviewVideo) { els.heroPreviewVideo.style.display='block'; els.heroPreviewVideo.src = vidUrl; }
@@ -129,9 +141,7 @@
 
     async function loadHeroFromAssets() {
       try {
-        const resp = await fetch('assets/hero.json', { cache: 'no-store' });
-        if (!resp.ok) return;
-        const data = await resp.json();
+        const data = await loadJson('assets/hero.json');
         if (els.heroTitle) els.heroTitle.value = (data.title || '');
         const fallbackHero = 'assets/images/17a7a6365dcde068822d456917306995.jpg';
         if (els.heroImage) els.heroImage.value = (data.imageUrl || fallbackHero);
@@ -223,7 +233,7 @@
       });
     }
 
-    loadHeroFromAssets();
+    (async()=>{ await initDataRepoConfig(); await loadHeroFromAssets(); })();
   </script>
 </body>
 </html>

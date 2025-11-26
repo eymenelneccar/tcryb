@@ -351,12 +351,58 @@
  
       </style>
       <script>
-        // ربط Google Sheet عبر Apps Script (مقدَّم من المستخدم)
         window.GS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxXY1tRMfsz-N5WCoiXSLgrR3GSYr12LORCMenxF5kxQihnTK7w8rC7F2bLYbqwQ_e4XA/exec';
-        // ضبط رقم واتساب الذي يستقبل الطلبات
         window.BRANCH_CONFIG = window.BRANCH_CONFIG || {};
         window.BRANCH_CONFIG.whatsapp = '9647734587101';
         try { localStorage.setItem('restaurant_whatsapp_number', '9647734587101'); } catch (e) {}
+
+        window.GH_OWNER = window.GH_OWNER || (window.DATA_REPO && window.DATA_REPO.owner) || '';
+        window.GH_REPO = window.GH_REPO || (window.DATA_REPO && window.DATA_REPO.repo) || '';
+        window.GH_BRANCH = window.GH_BRANCH || (window.DATA_REPO && window.DATA_REPO.branch) || 'main';
+        const isGhEnabled = () => Boolean(window.GH_OWNER && window.GH_REPO);
+        const ghUrls = (path) => {
+          const t = Date.now();
+          const p = String(path || '').replace(/^\//, '');
+          return [
+            `https://raw.githubusercontent.com/${window.GH_OWNER}/${window.GH_REPO}/${window.GH_BRANCH}/${p}?t=${t}`,
+            `https://cdn.jsdelivr.net/gh/${window.GH_OWNER}/${window.GH_REPO}@${window.GH_BRANCH}/${p}?t=${t}`
+          ];
+        };
+        async function initDataRepoConfig() {
+          if (isGhEnabled()) return;
+          try {
+            const resp = await fetch('/api/config');
+            if (resp.ok) {
+              const j = await resp.json();
+              if (j && j.ok && j.owner && j.repo) {
+                window.GH_OWNER = j.owner;
+                window.GH_REPO = j.repo;
+                window.GH_BRANCH = j.branch || 'main';
+              }
+            }
+          } catch {}
+        }
+        window.loadJson = async (path) => {
+          if (isGhEnabled()) {
+            const urls = ghUrls(path);
+            for (let i = 0; i < urls.length; i++) {
+              try {
+                const r = await fetch(urls[i], { cache: 'no-store' });
+                if (r.ok) return await r.json();
+              } catch {}
+            }
+          }
+          const r = await fetch(path, { cache: 'no-store' });
+          if (!r.ok) throw new Error('failed_to_load_' + path);
+          return await r.json();
+        };
+        window.resolveAssetUrl = (path) => {
+          const raw = String(path || '').trim();
+          if (!raw) return '';
+          if (!isGhEnabled()) return raw;
+          const rel = raw.replace(/^\//, '');
+          return `https://raw.githubusercontent.com/${window.GH_OWNER}/${window.GH_REPO}/${window.GH_BRANCH}/${rel}`;
+        };
       </script>
 </head>
 <body>
@@ -631,11 +677,8 @@
                 }
             } catch {}
             try {
-                const resp = await fetch('assets/menu.json', { cache: 'no-store' });
-                if (resp.ok) {
-                    const data = await resp.json();
-                    if (Array.isArray(data)) return data;
-                }
+                const data = await (window.loadJson ? window.loadJson('assets/menu.json') : (await (await fetch('assets/menu.json', { cache: 'no-store' })).json()));
+                if (Array.isArray(data)) return data;
             } catch (e) {
                 console.warn('تعذّر تحميل الأصول', e);
             }
@@ -723,15 +766,12 @@
             // إن لم تتوفر محلياً، نحمّلها من ملف الأصول
             if (!Array.isArray(governorates) || governorates.length === 0) {
                 try {
-                    const resp = await fetch('assets/governorates.json', { cache: 'no-store' });
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        if (Array.isArray(data)) {
-                            governorates = data.map(g => ({
-                                name: String((g.name || '')).trim(),
-                                shippingFee: Number(g.fee ?? g.shippingFee) || 0
-                            })).filter(g => g.name);
-                        }
+                    const data = await (window.loadJson ? window.loadJson('assets/governorates.json') : (await (await fetch('assets/governorates.json', { cache: 'no-store' })).json()));
+                    if (Array.isArray(data)) {
+                        governorates = data.map(g => ({
+                            name: String((g.name || '')).trim(),
+                            shippingFee: Number(g.fee ?? g.shippingFee) || 0
+                        })).filter(g => g.name);
                     }
                 } catch (e) {
                     console.warn('فشل تحميل المحافظات من الأصول', e);
@@ -981,21 +1021,15 @@
             const params = new URLSearchParams(window.location.search);
             const key = params.get('branch') || localStorage.getItem('restaurant_branch') || defaultKey;
             try {
-                const resp = await fetch('assets/branches.json', { cache: 'no-store' });
-                if (resp.ok) {
-                    const data = await resp.json();
-                    const cfg = data[key] || data[defaultKey] || {};
-                    window.BRANCH_CONFIG = cfg;
-                    // تحديث اسم الفرع في الهيدر
-                    const headerBranchEl = document.getElementById('branch-name');
-                    if (headerBranchEl && cfg.name) headerBranchEl.textContent = cfg.name;
-                    // تحديث زر الاتصال في الهيدر
-                    const headerTelLink = document.querySelector('header a[href^="tel:"]');
-                    if (headerTelLink && cfg.phone) headerTelLink.href = `tel:${cfg.phone}`;
-                    // حفظ الأرقام في التخزين المحلي لاستخدامها لاحقاً
-                    if (cfg.phone) localStorage.setItem('restaurant_phone_number', String(cfg.phone));
-                    if (cfg.whatsapp) localStorage.setItem('restaurant_whatsapp_number', String(cfg.whatsapp));
-                }
+                const data = await (window.loadJson ? window.loadJson('assets/branches.json') : (await (await fetch('assets/branches.json', { cache: 'no-store' })).json()));
+                const cfg = data[key] || data[defaultKey] || {};
+                window.BRANCH_CONFIG = cfg;
+                const headerBranchEl = document.getElementById('branch-name');
+                if (headerBranchEl && cfg.name) headerBranchEl.textContent = cfg.name;
+                const headerTelLink = document.querySelector('header a[href^="tel:"]');
+                if (headerTelLink && cfg.phone) headerTelLink.href = `tel:${cfg.phone}`;
+                if (cfg.phone) localStorage.setItem('restaurant_phone_number', String(cfg.phone));
+                if (cfg.whatsapp) localStorage.setItem('restaurant_whatsapp_number', String(cfg.whatsapp));
             } catch (e) {
                 console.warn('تعذر تحميل إعداد الفرع', e);
             }
@@ -1029,7 +1063,8 @@
             try {
               const logo = localStorage.getItem('restaurant_logo_url') || '';
               const logoEl = document.getElementById('brand-logo');
-              if (logoEl) { if (logo) { logoEl.src = logo; logoEl.style.display='block'; } else { logoEl.style.display='none'; } }
+              const src = window.resolveAssetUrl ? window.resolveAssetUrl(logo) : logo;
+              if (logoEl) { if (logo) { logoEl.src = src; logoEl.style.display='block'; } else { logoEl.style.display='none'; } }
               const heroOverlay = document.getElementById('hero-overlay');
               if (heroOverlay) { heroOverlay.style.background = logo ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.35)'; }
             } catch {}
@@ -1144,7 +1179,7 @@
                 return `
                 <div class="menu-item bg-white rounded-xl shadow-lg overflow-hidden transition duration-300 hover:shadow-[#ea580c]/30 ${cardClasses}" data-id="${item.id}" data-name="${item.name}" data-desc="${item.desc}">
                     <div class="relative flex-shrink-0">
-                        <img src="${item.img || ''}" alt="${item.name}" class="${imageClasses}" onerror="this.style.display='none'" style="${item.img ? '' : 'display:none;'}" onclick="openImageLightbox('${item.img || ''}'); event.stopPropagation();">
+                        ${(() => { const s = window.resolveAssetUrl ? window.resolveAssetUrl(item.img || '') : (item.img || ''); const d = s ? '' : 'display:none;'; return `<img src="${s}" alt="${item.name}" class="${imageClasses}" onerror="this.style.display='none'" style="${d}" onclick="openImageLightbox('${s}'); event.stopPropagation();">`; })()}
                     </div>
                     <div class="${contentClasses}">
                         <div class="flex items-baseline justify-between gap-2 mb-1">
@@ -1173,7 +1208,7 @@
             return `
                 <div class="menu-item bg-white rounded-xl shadow-lg overflow-hidden transition duration-300 hover:shadow-[#ea580c]/30 ${cardClasses}" data-id="${item.id}" data-name="${item.name}" data-desc="${item.desc}">
                     <div class="relative">
-                        <img src="${item.img || ''}" alt="${item.name}" class="${imageClasses}" onerror="this.style.display='none'" style="${item.img ? '' : 'display:none;'}" onclick="openImageLightbox('${item.img || ''}'); event.stopPropagation();">
+                        ${(() => { const s = window.resolveAssetUrl ? window.resolveAssetUrl(item.img || '') : (item.img || ''); const d = s ? '' : 'display:none;'; return `<img src="${s}" alt="${item.name}" class="${imageClasses}" onerror="this.style.display='none'" style="${d}" onclick="openImageLightbox('${s}'); event.stopPropagation();">`; })()}
                         ${overlayHtml}
                     </div>
                     <div class="${contentClasses}">
@@ -1226,12 +1261,12 @@
              const variantsContainer = document.getElementById('preview-variants');
              const hasVariants = Array.isArray(item.variants) && item.variants.length > 0;
 
-             if (imgEl) { 
-                 const src = item.img || '';
-                 imgEl.style.display = src ? '' : 'none';
-                 imgEl.src = src; 
-                 imgEl.onclick = () => openImageLightbox(src); 
-             }
+            if (imgEl) { 
+                const src = window.resolveAssetUrl ? window.resolveAssetUrl(item.img || '') : (item.img || '');
+                imgEl.style.display = src ? '' : 'none';
+                imgEl.src = src; 
+                imgEl.onclick = () => openImageLightbox(src); 
+            }
              if (nameEl) nameEl.textContent = item.name;
              if (descEl) descEl.textContent = item.desc || '';
 
@@ -1395,7 +1430,8 @@
             const navList = document.getElementById('section-nav-list');
             navList.innerHTML = data.map(section => {
                 const fallbackThumb = (section.items && section.items[0] && section.items[0].img) || '';
-                const thumb = (categoryImagesMap && categoryImagesMap[section.title]) || fallbackThumb;
+                const thumbRaw = (categoryImagesMap && categoryImagesMap[section.title]) || fallbackThumb;
+                const thumb = window.resolveAssetUrl ? window.resolveAssetUrl(thumbRaw) : (thumbRaw || '');
                 return `
                 <li class="flex-shrink-0">
                     <a href="#" class="nav-link category-card w-28 sm:w-32 md:w-36"
@@ -1545,9 +1581,7 @@
 
         async function applyHeroFromAssets() {
             try {
-                const resp = await fetch('assets/hero.json', { cache: 'no-store' });
-                if (!resp.ok) return;
-                const data = await resp.json();
+                const data = await (window.loadJson ? window.loadJson('assets/hero.json') : (await (await fetch('assets/hero.json', { cache: 'no-store' })).json()));
                 const imgEl = document.getElementById('hero-image');
                 const vidEl = document.getElementById('hero-video');
                 const titleEl = document.getElementById('hero-title');
@@ -1555,11 +1589,11 @@
                 const type = String(data.mediaType || '').toLowerCase();
                 const useVideo = type === 'video' && data.videoUrl;
                 if (useVideo && vidEl) {
-                    vidEl.src = data.videoUrl;
+                    vidEl.src = window.resolveAssetUrl ? window.resolveAssetUrl(data.videoUrl) : data.videoUrl;
                     vidEl.style.display = '';
                     if (imgEl) imgEl.style.display = 'none';
                 } else {
-                    if (imgEl && data.imageUrl) { imgEl.src = data.imageUrl; imgEl.style.display = ''; }
+                    if (imgEl && data.imageUrl) { imgEl.src = window.resolveAssetUrl ? window.resolveAssetUrl(data.imageUrl) : data.imageUrl; imgEl.style.display = ''; }
                     if (vidEl) { vidEl.removeAttribute('src'); vidEl.style.display = 'none'; }
                 }
                 if (titleEl && typeof data.title === 'string') titleEl.textContent = data.title;
@@ -1575,6 +1609,7 @@
         }
 
         window.onload = async () => {
+            await (typeof initDataRepoConfig === 'function' ? initDataRepoConfig() : Promise.resolve());
             // تطبيق الهيرو من ملف الأصول إن وجد
             await applyHeroFromAssets();
             // تحميل البيانات من التخزين المحلي أو الأصول ثم بناء الأقسام
@@ -1599,11 +1634,8 @@
                 // قراءة الفئات من ملف الأصول دائماً للدمج
                 let assetsCatsRaw = [];
                 try {
-                    const respCats = await fetch('assets/categories.json', { cache: 'no-store' });
-                    if (respCats.ok) {
-                        const catsData = await respCats.json();
-                        if (Array.isArray(catsData)) assetsCatsRaw = catsData;
-                    }
+                    const catsData = await (window.loadJson ? window.loadJson('assets/categories.json') : (await (await fetch('assets/categories.json', { cache: 'no-store' })).json()));
+                    if (Array.isArray(catsData)) assetsCatsRaw = catsData;
                 } catch {}
 
                 // تجميع الأسماء ودمج الصور من الأصول عند توفرها

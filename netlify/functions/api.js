@@ -1,12 +1,13 @@
 exports.handler = async (event) => {
   const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type, Authorization', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS' };
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: cors };
+  const path = event.path || '';
   const secret = process.env.API_SECRET || '';
-  if (secret) {
+  const routeEarly = path.includes('/.netlify/functions/api') ? path.split('/.netlify/functions/api')[1] : path;
+  if (secret && !(routeEarly.includes('/config') && event.httpMethod === 'GET')) {
     const auth = event.headers['authorization'] || event.headers['Authorization'] || '';
     if (auth !== `Bearer ${secret}`) return { statusCode: 401, headers: cors, body: JSON.stringify({ ok: false, error: 'unauthorized' }) };
   }
-  const path = event.path || '';
   const bodyText = event.body || '';
   const owner = process.env.GITHUB_OWNER || '';
   const repo = process.env.GITHUB_REPO || '';
@@ -29,7 +30,10 @@ exports.handler = async (event) => {
   const json = (obj) => ({ statusCode: 200, headers: { ...cors, 'content-type': 'application/json' }, body: JSON.stringify(obj) });
   const error = (code, msg) => ({ statusCode: code, headers: cors, body: JSON.stringify({ ok: false, error: msg }) });
   try {
-    const route = path.includes('/.netlify/functions/api') ? path.split('/.netlify/functions/api')[1] : path;
+    const route = routeEarly;
+    if (route.includes('/config') && event.httpMethod === 'GET') {
+      return json({ ok: true, owner, repo, branch });
+    }
     if (route.includes('/upload-image') && event.httpMethod === 'POST') {
       const p = JSON.parse(bodyText || '{}');
       const filename = String(p.filename || 'file');
