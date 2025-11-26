@@ -399,8 +399,10 @@
         window.resolveAssetUrl = (path) => {
           const raw = String(path || '').trim();
           if (!raw) return '';
+          if (/^(?:https?:)?\/\//i.test(raw)) return raw;
           if (!isGhEnabled()) return raw;
           const rel = raw.replace(/^\//, '');
+          if (!/^assets\//.test(rel)) return raw;
           return `https://raw.githubusercontent.com/${window.GH_OWNER}/${window.GH_REPO}/${window.GH_BRANCH}/${rel}`;
         };
       </script>
