@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crafty Burger</title>
+    <title>Graffiti Burger</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,8 +13,10 @@
     
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preload" as="image" href="LOGO.png" fetchpriority="high">
 
     <style>
+        :root { --accent:#FFC107; --accent2:#E91E63; --bg:#0a0a0a; --card:#141414; --text:#ffffff; }
         @font-face {
             font-family: 'MSjawhara';
             src: url('MSjawhara-Bold.ttf') format('truetype');
@@ -41,42 +43,91 @@
         .neon-text {
             text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
         }
+        #hero-img[src=""] { display: none; }
+        #products-grid { grid-auto-rows: minmax(0, 1fr); }
+        .product-card { display:flex; flex-direction:column; height:100%; }
+        .card-content { display:flex; flex-direction:column; gap:.5rem; flex: 1 1 auto; }
+        .line-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient: vertical; overflow:hidden; }
+        #cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 90; display: none; }
+        #cart-panel { position: fixed; top: 0; right: 0; width: 100%; max-width: 400px; height: 100%; background: #ffffff; color: #111827; box-shadow: -8px 0 24px rgba(0,0,0,.25); transform: translateX(100%); transition: transform .25s ease; z-index: 100; display:flex; flex-direction:column; }
+        #cart-panel.open { transform: translateX(0); }
+        .cart-header { display:flex; align-items:center; justify-content: space-between; padding: .75rem 1rem; }
+        .cart-title { font-weight: 900; font-size: 1.25rem; }
+        #cart-back-btn { display:inline-flex; align-items:center; gap:.4rem; border:1px solid #e5e7eb; background:#fff; color:#111827; border-radius:12px; padding:.4rem .65rem; font-weight:800; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
+        #cart-back-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.10); background:#f8fafc; }
+        .cart-divider { height: 1px; background: #e5e7eb; }
+        .cart-empty { display: grid; place-items: center; padding: 2rem; color: #6b7280; flex:1; }
+        .cart-items { padding: .75rem 1rem; display: grid; gap: .75rem; overflow:auto; }
+        .cart-item { display: grid; grid-template-columns: 64px 1fr; gap:.75rem; align-items: center; background:#fafafa; border:1px solid #e5e7eb; border-radius: 12px; padding: .5rem; }
+        .cart-thumb { width:64px; height:64px; object-fit:cover; border-radius:10px; border:1px solid #e5e7eb; }
+        .thumb-wrap { position:relative; width:64px; height:64px; }
+        .thumb-fallback { display:none; place-items:center; width:64px; height:64px; border-radius:10px; border:1px solid #e5e7eb; background:#f3f4f6; color:#6b7280; }
+        .qty-box { display:inline-flex; align-items:center; gap:.25rem; background:#fff; border:1px solid #e5e7eb; border-radius:10px; padding:.25rem; }
+        .qty-btn { width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:8px; border:1px solid #e5e7eb; background:#fff; color:#111827; font-weight:900; transition: background .2s ease; }
+        .qty-btn:hover { background:#f3f4f6; }
+        .qty-val { min-width:24px; text-align:center; font-weight:800; }
+        .cart-total { display:flex; align-items:center; justify-content: space-between; padding: .75rem 1.25rem; font-weight:800; }
+        .cart-form { padding: .5rem 1.25rem 1rem; display: grid; gap: .5rem; }
+        .cart-input { width:100%; background:#fff; border:1px solid #d1d5db; border-radius: 12px; padding: .5rem .75rem; font-size:.9rem; }
+        .cart-actions { padding: .75rem 1.25rem 1rem; display:grid; gap:.5rem; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color:#111827; border:0; border-radius:12px; padding:.6rem .75rem; font-weight:800; text-align:center; box-shadow: 0 0 14px rgba(255,193,7,.25); }
+        .btn-primary:hover { filter: brightness(1.06); }
+        .btn-secondary { background:#0f0f0f; color:#fff; border:1px solid #262626; border-radius:12px; padding:.6rem .75rem; font-weight:800; text-align:center; }
+        @media (max-width:640px){ .cart-item{ grid-template-columns: 56px 1fr; } .cart-thumb{ width:56px; height:56px; } .thumb-wrap{ width:56px; height:56px; } .thumb-fallback{ width:56px; height:56px; } }
+
+        #splash { position: fixed; inset: 0; background: #000; z-index: 9999; display: grid; place-items: center; }
+        #splash.hide { opacity: 0; transition: opacity .35s ease; pointer-events: none; }
+        .splash-inner { text-align: center; }
+        .splash-logo { width: clamp(96px, 28vw, 160px); height: auto; display:block; margin: 0 auto 10px; filter: drop-shadow(0 8px 24px rgba(255,193,7,.15)); }
+        .splash-brand { font-weight: 900; font-size: clamp(28px, 6vw, 44px); color: #fff; letter-spacing: -0.5px; }
+        .splash-brand .accent { color: var(--accent); text-shadow: 0 0 14px rgba(255,193,7,.25); }
+        .splash-spinner { width: 32px; height: 32px; border-radius: 50%; border: 3px solid #222; border-top-color: var(--accent); margin: 14px auto 0; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="pb-40">
+
+    <div id="splash">
+        <div class="splash-inner">
+            <img class="splash-logo" src="LOGO.png" alt="" width="160" height="160" decoding="async" onerror="this.style.display='none'" loading="eager">
+            <div class="splash-brand" dir="ltr">Graffiti <span class="accent">Burger</span></div>
+            <div class="splash-spinner"></div>
+        </div>
+    </div>
 
     <!-- Header -->
     <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-5 bg-transparent">
         <div class="container mx-auto px-4">
             <div class="relative flex items-center justify-center">
-                <div class="flex items-center gap-1">
-                    <span class="text-2xl font-black tracking-tighter text-white">CRAFTY</span>
-                    <span class="text-2xl font-black tracking-tighter text-[#FFC107]">BURGER</span>
+                <div class="flex items-center gap-1 whitespace-nowrap" dir="ltr">
+                    <span class="text-2xl font-black tracking-tighter text-white">Graffiti</span>
+                    <span class="text-2xl font-black tracking-tighter text-[#FFC107]">Burger</span>
                 </div>
             </div>
         </div>
     </header>
 
     <!-- Hero Section -->
-    <div class="relative h-[40vh] w-full overflow-hidden">
+    <div class="relative h-[50vh] md:h-[60vh] w-full overflow-hidden">
         <!-- Background Image -->
         <div class="absolute inset-0 z-0">
-            <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=2070&auto=format&fit=crop" 
-                 alt="Neon Restaurant Interior" 
+            <img id="hero-img" src="" 
+                 alt="" 
                  class="w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent"></div>
         </div>
 
         <!-- Content -->
         <div class="relative z-10 h-full flex flex-col justify-end items-center text-center px-4 pb-12">
-            <h1 id="hero-title" class="text-3xl md:text-5xl font-black mb-2 leading-tight">
-                فن الشارع في <span class="text-[#FFC107]">كل قضمة</span>
+            <h1 id="hero-title" class="text-2xl md:text-4xl font-black mb-1 leading-tight">
+                من أول لقمة… تعرف إن الموضوع مو <span class="text-[#FFC107]">صدفة</span>
             </h1>
+            
         </div>
     </div>
 
     <!-- Categories Section -->
-    <div class="sticky top-20 z-40 bg-gradient-to-b from-transparent via-[#0a0a0a]/80 to-[#0a0a0a] pt-2 pb-4 mb-4 -mt-8">
+    <div id="categories-sticky" class="sticky z-40 bg-gradient-to-b from-transparent via-[#0a0a0a]/80 to-[#0a0a0a] pt-0 pb-2 mb-0">
         <div class="container mx-auto px-4 overflow-x-auto hide-scrollbar">
             <div id="categories-container" class="flex justify-center gap-4 min-w-max pb-2 pt-2">
                 <!-- Categories will be injected here via JS -->
@@ -93,20 +144,20 @@
     </div>
 
     <!-- Fixed Footer -->
-    <footer class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur border-t border-gray-900 py-4 z-40">
+    <footer class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur border-t border-gray-900 py-2 z-40">
         <div class="container mx-auto px-4 text-center">
-            <p class="text-gray-400 font-medium text-sm mb-1">
+            <p class="text-gray-500 font-medium text-[11px] mb-0.5">
                 © 2025 جميع الحقوق محفوظة لصالح <span class="text-[#FFC107] font-bold">Graffiti Burger</span>
             </p>
-            <p class="text-gray-600 text-xs font-light tracking-wide" dir="ltr">
-                powered by <span class="text-gray-500 font-bold hover:text-white transition-colors cursor-default">IQR .LTD</span>
+            <p class="text-gray-600 text-[10px] font-light tracking-wide" dir="ltr">
+                powered by <span class="text-gray-400 font-bold hover:text-white transition-colors cursor-default">IQR MENU</span>
             </p>
         </div>
     </footer>
 
     <!-- Floating Cart Button -->
     <div class="fixed bottom-24 left-6 z-50">
-        <button onclick="shakeCart()" class="w-16 h-16 bg-[#FFC107] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(255,193,7,0.4)] hover:scale-110 transition-transform relative">
+        <button onclick="openCart()" class="w-16 h-16 bg-[#FFC107] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(255,193,7,0.4)] hover:scale-110 transition-transform relative">
             <i data-lucide="shopping-cart" class="text-black w-6 h-6"></i>
             <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-[#E91E63] text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-[#0a0a0a]">
                 0
@@ -114,10 +165,23 @@
         </button>
     </div>
 
+    <div id="cart-overlay" onclick="closeCart()"></div>
+    <div id="cart-panel" role="dialog" aria-modal="true">
+        <div class="cart-header">
+            <button id="cart-back-btn" onclick="closeCart()"><span>رجوع</span></button>
+            <div class="cart-title">اطلع على سلتك</div>
+            <div style="width:68px"></div>
+        </div>
+        <div class="cart-divider"></div>
+        <div id="cart-content"></div>
+    </div>
+
     <!-- JavaScript Logic -->
     <script>
         let activeCategory = 'الكل';
         let cartCount = 0;
+        let cart = [];
+        const STORE_PHONE = '9647714444945';
         let APP = { categories: [], items: [] };
 
         window.GH_OWNER = window.GH_OWNER || '';
@@ -165,12 +229,45 @@
             const map={'ا':'a','أ':'a','إ':'i','آ':'a','ب':'b','ت':'t','ث':'th','ج':'j','ح':'h','خ':'kh','د':'d','ذ':'dh','ر':'r','ز':'z','س':'s','ش':'sh','ص':'s','ض':'d','ط':'t','ظ':'z','ع':'a','غ':'gh','ف':'f','ق':'q','ك':'k','گ':'g','م':'m','ن':'n','ه':'h','ة':'a','و':'o','ؤ':'o','ي':'y','ى':'a','ئ':'y'};
             return normalizeArabic(s).split('').map(ch=>map[ch]||ch).join('');
         }
+        const ADJ_MAP = {
+            'تركي':'Turkish','تركية':'Turkish','عربي':'Arabic','عربية':'Arabic','حار':'Spicy','سبايسي':'Spicy',
+            'كلاسيكي':'Classic','كلاسيك':'Classic','مدخن':'Smoked','أزرق':'Blue','ازرق':'Blue','أسود':'Black','اسود':'Black','دبل':'Double'
+        };
+        const NOUN_MAP = {
+            'قهوة':'Coffee','شاي':'Tea','عصير':'Juice','موهيتو':'Mojito','برجر':'Burger','فرايز':'Fries','بطاطس':'Fries',
+            'ترافل':'Truffle','مشروم':'Mushroom','جبنة':'Cheese','صوص':'Sauce','كولا':'Cola','بيبسي':'Pepsi','سبرايت':'Sprite',
+            'ليمون':'Lemon','نعناع':'Mint','توت':'Berry','فراولة':'Strawberry','مانجو':'Mango','أناناس':'Pineapple','اناناس':'Pineapple'
+        };
+        function stemGender(w){
+            let x=w;
+            x=x.replace(/^ال/,'');
+            if (x.endsWith('ية')) return x.slice(0,-2)+'ي';
+            if (x.endsWith('ه')||x.endsWith('ة')) return x.slice(0,-1);
+            return x;
+        }
         function autoEnglish(s){
-            let t=normalizeArabic(s).toLowerCase();
-            Object.keys(PHRASE_MAP).forEach(k=>{const kk=normalizeArabic(k).toLowerCase();if(t.includes(kk)){t=t.replace(new RegExp(kk,'g'),PHRASE_MAP[k].toUpperCase());}});
-            const tokens=t.split(/\s+/).filter(Boolean).map(tok=>{const noAl=tok.replace(/^ال/,'');const w=WORD_MAP[tok]||WORD_MAP[noAl];return (w||arabicToLatin(noAl)).toUpperCase();});
-            const out=tokens.join(' ').replace(/\s+/g,' ').trim();
-            return out;
+            const raw = normalizeArabic(s);
+            if (!raw) return '';
+            const lower = raw.toLowerCase();
+            for (const k of Object.keys(PHRASE_MAP)){
+                const kk = normalizeArabic(k).toLowerCase();
+                if (lower === kk) return PHRASE_MAP[k];
+            }
+            const parts = lower.split(/\s+/).filter(Boolean);
+            const nouns=[]; const adjs=[]; const others=[];
+            for (let tok of parts){
+                const base = stemGender(tok);
+                if (ADJ_MAP[tok]) adjs.push(ADJ_MAP[tok]);
+                else if (ADJ_MAP[base]) adjs.push(ADJ_MAP[base]);
+                else if (NOUN_MAP[tok]) nouns.push(NOUN_MAP[tok]);
+                else if (NOUN_MAP[base]) nouns.push(NOUN_MAP[base]);
+                else if (WORD_MAP[tok]) nouns.push(WORD_MAP[tok]);
+                else if (WORD_MAP[base]) nouns.push(WORD_MAP[base]);
+                else others.push(tok);
+            }
+            if (!nouns.length && !adjs.length) return '';
+            const phrase = `${adjs.join(' ')} ${nouns.join(' ')}`.replace(/\s+/g,' ').trim();
+            return phrase.toUpperCase();
         }
         async function loadJson(path) {
             if (isGhEnabled()) {
@@ -232,7 +329,7 @@
                         englishTitle: d.englishTitle || autoEnglish(d.name || d.title || ''),
                         price: Number(d.price) || 0,
                         description: d.description || '',
-                        image: resolveAssetUrl(d.imageUrl || ''),
+                        image: resolveAssetUrl(d.image || d.img || d.imageUrl || ''),
                         isNew: !!d.isNew
                     }));
                 }
@@ -243,13 +340,18 @@
         async function applyHeroFromAssets() {
             try {
                 const data = await loadJson('assets/hero.json');
-                const imgEl = document.querySelector('.relative.h-[40vh] img');
-                const titleEl = document.querySelector('.relative.z-10 h-full h-full .font-black');
-                const heroTitle = document.querySelector('#hero-title-text');
-                if (data && data.imageUrl && imgEl) imgEl.src = resolveAssetUrl(data.imageUrl);
-                if (data && typeof data.title === 'string') {
-                    const h1 = document.querySelector('#hero-title');
-                    if (h1) h1.innerText = data.title;
+                const imgEl = document.getElementById('hero-img');
+                if (data && typeof data.imageUrl === 'string' && data.imageUrl && imgEl) {
+                    const src = resolveAssetUrl(data.imageUrl);
+                    const bust = src + (src.includes('?') ? `&t=${Date.now()}` : `?t=${Date.now()}`);
+                    imgEl.src = bust;
+                    imgEl.onload = () => hideSplash();
+                    imgEl.onerror = () => hideSplash();
+                }
+                const h1 = document.getElementById('hero-title');
+                if (h1 && data && typeof data.title === 'string' && data.title.trim().length > 0) {
+                    const t = String(data.title);
+                    h1.innerHTML = t.replace(/صدفة/g, '<span class="text-[#FFC107]">صدفة</span>');
                 }
             } catch {}
         }
@@ -262,6 +364,19 @@
             renderProducts();
             await applyHeroFromAssets();
             lucide.createIcons();
+            const imgEl = document.getElementById('hero-img');
+            const hideSplashFallback = setTimeout(() => hideSplash(), 1500);
+            if (imgEl && imgEl.complete) { clearTimeout(hideSplashFallback); hideSplash(); }
+            const updateCategoriesOffset = () => {
+                const header = document.getElementById('main-header');
+                const section = document.getElementById('categories-sticky');
+                if (header && section) {
+                    const h = header.offsetHeight || 64;
+                    section.style.top = h + 'px';
+                }
+            };
+            updateCategoriesOffset();
+            window.addEventListener('resize', updateCategoriesOffset);
             window.addEventListener('scroll', () => {
                 const header = document.getElementById('main-header');
                 if (window.scrollY > 50) {
@@ -271,6 +386,7 @@
                     header.classList.add('bg-transparent', 'py-5');
                     header.classList.remove('bg-black/90', 'backdrop-blur-md', 'py-3', 'shadow-lg');
                 }
+                updateCategoriesOffset();
             });
         });
 
@@ -302,9 +418,9 @@
             const grid = document.getElementById('products-grid');
             const items = activeCategory === 'الكل' ? APP.items : APP.items.filter(p => p.category === activeCategory);
             grid.innerHTML = items.map(item => `
-                <div class="bg-[#141414] rounded-3xl overflow-hidden border border-gray-800 hover:border-gray-700 transition-all duration-300 group">
+                <div class="product-card bg-[#141414] rounded-3xl overflow-hidden border border-gray-800 hover:border-gray-700 transition-all duration-300 group">
                     <div class="relative h-40 md:h-64 overflow-hidden">
-                        <img src="${item.image || ''}" alt="${item.title}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" onerror="this.style.display='none'">
+                        <img src="${item.image || ''}" alt="${item.title}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" onerror="this.style.display='none'" loading="lazy">
                         <div class="absolute inset-0 bg-gradient-to-t from-[#141414] to-transparent opacity-80"></div>
                         <div class="absolute bottom-2 right-2 bg-black/90 backdrop-blur px-2 py-1 rounded-lg border border-gray-800">
                             <span class="text-[#FFC107] font-black text-sm md:text-xl">${Number(item.price||0).toLocaleString('ar-IQ')}</span>
@@ -315,11 +431,11 @@
                             جديد
                         </div>` : ''}
                     </div>
-                    <div class="p-4 md:p-6 relative -mt-4 md:-mt-6 bg-[#141414] rounded-t-3xl">
+                    <div class="card-content p-4 md:p-6 relative -mt-4 md:-mt-6 bg-[#141414] rounded-t-3xl">
                         <h3 class="text-lg md:text-2xl font-black text-white leading-tight mb-1 md:mb-2">${item.title}</h3>
                         <h4 class="text-[#E91E63] text-[10px] md:text-xs font-bold tracking-widest uppercase mb-2 md:mb-4 opacity-90 truncate">${item.englishTitle || ''}</h4>
-                        <p class="text-gray-400 text-xs md:text-sm leading-relaxed mb-4 md:mb-6 font-medium line-clamp-2 md:line-clamp-none">${item.description || ''}</p>
-                        <button onclick="addToCart()" class="w-full bg-[#1a1a1a] hover:bg-[#252525] text-white py-2 md:py-4 rounded-xl font-bold flex items-center justify-center gap-2 group transition-colors border border-gray-800 text-sm md:text-base cursor-pointer">
+                        <p class="text-gray-400 text-xs md:text-sm leading-relaxed mb-4 font-medium line-2">${item.description || ''}</p>
+                        <button onclick="addToCart(${item.id})" class="mt-auto w-full bg-[#1a1a1a] hover:bg-[#252525] text-white py-2 md:py-4 rounded-xl font-bold flex items-center justify-center gap-2 group transition-colors border border-gray-800 text-sm md:text-base cursor-pointer">
                             <span>أضف</span>
                             <i data-lucide="plus" class="text-[#FFC107] w-4 h-4 group-hover:rotate-90 transition-transform"></i>
                         </button>
@@ -328,13 +444,18 @@
             `).join('');
         }
 
-        function addToCart() {
-            cartCount++;
+        function addToCart(id) {
+            const item = APP.items.find(i => i.id === id);
+            if (!item) return;
+            const idx = cart.findIndex(c => c.id === id);
+            if (idx !== -1) cart[idx].qty += 1; else cart.push({ id, title: item.title, price: Number(item.price)||0, qty: 1, image: item.image });
+            cartCount = cart.reduce((s,x)=>s+x.qty,0);
             const badge = document.getElementById('cart-badge');
             badge.innerText = cartCount;
             badge.classList.remove('hidden');
             badge.classList.add('flex');
             shakeCart();
+            renderCart();
         }
 
         function shakeCart() {
@@ -344,6 +465,82 @@
                 btn.classList.remove('scale-125');
             }, 200);
         }
+        function openCart(){ document.getElementById('cart-panel').classList.add('open'); document.getElementById('cart-overlay').style.display='block'; renderCart(); }
+        function closeCart(){ document.getElementById('cart-panel').classList.remove('open'); document.getElementById('cart-overlay').style.display='none'; }
+        function formatIQD(n){ return Number(n||0).toLocaleString('ar-IQ'); }
+        function renderCart(){
+            const content = document.getElementById('cart-content');
+            if (!cart.length) { content.innerHTML = `
+                <div class="cart-empty">
+                    <i data-lucide="shopping-cart" class="w-10 h-10 text-emerald-500"></i>
+                    <div class="mt-2 text-sm">عربتك فارغة حالياً</div>
+                </div>
+            `; lucide.createIcons(); return; }
+            const total = cart.reduce((s,x)=>s + x.price*x.qty,0);
+            const itemsHtml = `
+                <div class="cart-items">
+                    ${cart.map(x=>`
+                        <div class=\"cart-item\">
+                            <div class=\"thumb-wrap\">
+                                <img class=\"cart-thumb\" src=\"${x.image||''}\" alt=\"${x.title}\" loading=\"lazy\" onerror=\"this.style.display='none'; this.nextElementSibling.style.display='grid'\">
+                                <div class=\"thumb-fallback\"><i data-lucide=\"image\" class=\"w-6 h-6\"></i></div>
+                            </div>
+                            <div>
+                                <div class=\"font-extrabold\">${x.title}</div>
+                                <div class=\"text-sm font-bold mt-1\">${formatIQD(x.price)} × ${x.qty} = ${formatIQD(x.price*x.qty)} د.ع</div>
+                                <div class=\"qty-box mt-1\">
+                                    <button class=\"qty-btn\" onclick=\"updateQty(${x.id},-1)\">−</button>
+                                    <span class=\"qty-val\">${x.qty}</span>
+                                    <button class=\"qty-btn\" onclick=\"updateQty(${x.id},1)\">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            const formHtml = `
+                <div class=\"cart-form\">
+                    <textarea id=\"order-note\" class=\"cart-input\" rows=\"3\" placeholder=\"اكتب أي ملاحظة للطلب هنا...\"></textarea>
+                    <div style=\"display:grid; grid-template-columns: 1fr 1fr; gap:.5rem;\">
+                        <input id=\"customer-name\" class=\"cart-input\" placeholder=\"اكتب اسمك\" />
+                        <input id=\"customer-phone\" class=\"cart-input\" placeholder=\"اكتب رقم هاتفك\" />
+                    </div>
+                    <input id=\"delivery-address\" class=\"cart-input\" placeholder=\"اكتب عنوانك بالتفصيل\" />
+                </div>
+            `;
+            const actionsHtml = `
+                <div class=\"cart-total\"><div>الإجمالي:</div><div>${formatIQD(total)} د.ع</div></div>
+                <div class=\"cart-actions\">
+                    <button class=\"btn-primary\" onclick=\"sendOrder()\">إرسال الطلب</button>
+                    <button class=\"btn-secondary\" onclick=\"callStore()\">اطلب عبر اتصال</button>
+                </div>
+            `;
+            content.innerHTML = itemsHtml + formHtml + actionsHtml;
+            try { lucide.createIcons(); } catch {}
+        }
+        function buildInvoice(){
+            const name = document.getElementById('customer-name')?.value?.trim()||'';
+            const phone = document.getElementById('customer-phone')?.value?.trim()||'';
+            const addr = document.getElementById('delivery-address')?.value?.trim()||'';
+            const note = document.getElementById('order-note')?.value?.trim()||'';
+            const total = cart.reduce((s,x)=>s + x.price*x.qty,0);
+            const lines = cart.map(x=>`- ${x.title} x ${x.qty} — ${formatIQD(x.price*x.qty)} د.ع`).join('\n');
+            const msg = `فاتورة الطلب\nالأصناف:\n${lines}\nالمجموع: ${formatIQD(total)} د.ع\nالاسم: ${name||'—'}\nالرقم: ${phone||'—'}\nالعنوان: ${addr||'—'}\nملاحظة: ${note||'—'}`;
+            return msg;
+        }
+        function sendOrder(){ const m = buildInvoice(); const to = STORE_PHONE ? `https://wa.me/${STORE_PHONE}?text=` : `https://wa.me/?text=`; const url = to + encodeURIComponent(m); window.open(url,'_blank'); }
+        function callStore(){ const num = STORE_PHONE || (document.getElementById('customer-phone')?.value||''); if (!num) return; window.location.href = `tel:${num}`; }
+        function updateQty(id, delta){
+            const i = cart.findIndex(c=>c.id===id);
+            if (i===-1) return;
+            cart[i].qty += delta;
+            if (cart[i].qty <= 0) { cart.splice(i,1); }
+            cartCount = cart.reduce((s,x)=>s+x.qty,0);
+            const badge = document.getElementById('cart-badge');
+            if (cartCount>0){ badge.innerText = cartCount; badge.classList.remove('hidden'); badge.classList.add('flex'); } else { badge.classList.add('hidden'); }
+            renderCart();
+        }
+        function hideSplash(){ const s = document.getElementById('splash'); if (!s) return; if (s.classList.contains('hide')) return; s.classList.add('hide'); setTimeout(()=>{ try{ s.remove(); }catch{} }, 350); }
     </script>
 </body>
 </html>

@@ -1,6 +1,42 @@
 [
   {
-    "name": "ايمن",
+    "name": "جرافتي ريزو",
+    "imageUrl": ""
+  },
+  {
+    "name": "برجر لحم",
+    "imageUrl": ""
+  },
+  {
+    "name": "برجر دجاج",
+    "imageUrl": ""
+  },
+  {
+    "name": "ساندويش",
+    "imageUrl": ""
+  },
+  {
+    "name": "طلبات جانبية",
+    "imageUrl": ""
+  },
+  {
+    "name": "فرايز",
+    "imageUrl": ""
+  },
+  {
+    "name": "Boxes",
+    "imageUrl": ""
+  },
+  {
+    "name": "موهيتو",
+    "imageUrl": ""
+  },
+  {
+    "name": "ميلك شيك",
+    "imageUrl": ""
+  },
+  {
+    "name": "كنتاكي",
     "imageUrl": ""
   }
 ]

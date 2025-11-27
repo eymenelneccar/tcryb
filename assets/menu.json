@@ -1,26 +1,34 @@
 [
   {
-    "id": 1763916327099,
-    "name": "قهوة",
-    "category": "ايمن",
-    "price": 10000,
-    "imageUrl": "assets/images/500.jpg",
+    "id": 1764259092880,
+    "name": "ريزو اربيتا",
+    "category": "جرافتي ريزو",
+    "price": 7000,
+    "imageUrl": "assets/images/2a52a4a9989b7787e90420ea354327b8.jpg",
     "description": ""
   },
   {
-    "id": 1764240670518,
-    "name": "hdlkldvd",
-    "category": "ايمن",
-    "price": 88787,
-    "imageUrl": "assets/images/Screenshot_2025-10-17_100536.png",
+    "id": 1764259177133,
+    "name": "ريزو فطرو شرائح اللحم",
+    "category": "جرافتي ريزو",
+    "price": 8000,
+    "imageUrl": "assets/images/dcff2af1f8f46748df3589cef9b36315.jpg",
     "description": ""
   },
   {
-    "id": 1764240713329,
-    "name": "قهوة تركية",
-    "category": "ايمن",
-    "price": 78278,
-    "imageUrl": "assets/images/Screenshot_2025-10-18_134308.png",
-    "description": "غغتغفتغفتغ غفت غتغفت"
+    "id": 1764259318582,
+    "name": "ريزو مدخن",
+    "category": "جرافتي ريزو",
+    "price": 6500,
+    "imageUrl": "assets/images/a7b120ea8d2dcb664159f0968d508316.jpg",
+    "description": ""
+  },
+  {
+    "id": 1764259338123,
+    "name": "ريزو دجاج بالعسل",
+    "category": "جرافتي ريزو",
+    "price": 7000,
+    "imageUrl": "assets/images/a6ca542633b3c0bf0c6ab2fe36e5fefb.jpg",
+    "description": ""
   }
 ]
