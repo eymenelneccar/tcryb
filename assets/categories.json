@@ -1,32 +1,62 @@
 [
   {
-    "name": "جرافتي ريزو"
+    "name": "جرافتي ريزو",
+    "imageUrl": "/assets/images/1764464079324-7bd8401f-4636-461e-971e-0acb97e030be.jpeg.jpg",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "برجر لحم"
+    "name": "برجر لحم",
+    "imageUrl": "",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "برجر دجاج"
+    "name": "برجر دجاج",
+    "imageUrl": "",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "ساندويش"
+    "name": "ساندويش",
+    "imageUrl": "",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "طلبات جانبية"
+    "name": "طلبات جانبية",
+    "imageUrl": "",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "فرايز"
+    "name": "فرايز",
+    "imageUrl": "",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "Boxes"
+    "name": "Boxes",
+    "imageUrl": "",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "موهيتو"
+    "name": "موهيتو",
+    "imageUrl": "",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "ميلك شيك"
+    "name": "ميلك شيك",
+    "imageUrl": "",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "كنتاكي"
+    "name": "كنتاكي",
+    "imageUrl": "",
+    "span": 1,
+    "height": 48
   }
 ]
