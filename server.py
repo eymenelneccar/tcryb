@@ -14,10 +14,12 @@ ASSETS_PATH = os.path.join(ROOT_DIR, 'assets', 'menu.json')
 CATEGORIES_ASSETS_PATH = os.path.join(ROOT_DIR, 'assets', 'categories.json')
 GOVS_ASSETS_PATH = os.path.join(ROOT_DIR, 'assets', 'governorates.json')
 HERO_ASSETS_PATH = os.path.join(ROOT_DIR, 'assets', 'hero.json')
+FEEDBACK_ASSETS_PATH = os.path.join(ROOT_DIR, 'assets', 'feedback.json')
 SAVE_ENDPOINT = '/api/save-menu'
 SAVE_CATS_ENDPOINT = '/api/save-categories'
 SAVE_GOVS_ENDPOINT = '/api/save-governorates'
 SAVE_HERO_ENDPOINT = '/api/save-hero'
+SAVE_FEEDBACK_ENDPOINT = '/api/save-feedback'
 UPLOAD_ENDPOINT = '/api/upload-image'
 
 
@@ -284,6 +286,49 @@ class Handler(SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({'ok': True}).encode('utf-8'))
             except Exception as e:
                 self.send_response(400)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode('utf-8'))
+        elif self.path == '/api/save-feedback':
+            length = int(self.headers.get('Content-Length', '0'))
+            body = self.rfile.read(length)
+            try:
+                data = json.loads(body.decode('utf-8'))
+                if not isinstance(data, dict):
+                    raise ValueError('Payload must be a JSON object')
+            except Exception as e:
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode('utf-8'))
+                return
+
+            try:
+                os.makedirs(os.path.dirname(FEEDBACK_ASSETS_PATH), exist_ok=True)
+                entries = []
+                if os.path.exists(FEEDBACK_ASSETS_PATH):
+                    try:
+                        with open(FEEDBACK_ASSETS_PATH, 'r', encoding='utf-8') as f:
+                            entries = json.load(f)
+                            if not isinstance(entries, list):
+                                entries = []
+                    except Exception:
+                        entries = []
+                entry = {
+                    'rating': int(data.get('rating') or 0),
+                    'comment': (data.get('comment') or ''),
+                    'name': (data.get('name') or ''),
+                    'timestamp': data.get('timestamp') or time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+                }
+                entries.append(entry)
+                with open(FEEDBACK_ASSETS_PATH, 'w', encoding='utf-8') as f:
+                    json.dump(entries, f, ensure_ascii=False, indent=2)
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': True, 'path': 'assets/feedback.json'}).encode('utf-8'))
+            except Exception as e:
+                self.send_response(500)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
                 self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode('utf-8'))

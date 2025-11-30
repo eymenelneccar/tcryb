@@ -69,12 +69,14 @@
     const STORAGE_KEY = 'menu_assets';
     const CATS_KEY = 'menu_categories';
     const CATS_IMAGES_KEY = 'menu_category_images';
+    const CATS_LAYOUT_KEY = 'menu_category_layouts';
     const FALLBACK_CATEGORY = 'أخرى';
     const UPLOAD_ENDPOINT = '/api/upload-image';
     const SAVE_CATS_ENDPOINT = '/api/save-categories';
 
     let categories = [];
     let categoryImages = {};
+    let categoryLayouts = {};
     let pendingCatImageName = null;
     let catQuery = '';
 
@@ -95,6 +97,8 @@
     function loadCategories() { try { const raw=localStorage.getItem(CATS_KEY); if (raw) { const arr=JSON.parse(raw); if (Array.isArray(arr)) return arr; } } catch {} return []; }
     function saveCategoryImages() { localStorage.setItem(CATS_IMAGES_KEY, JSON.stringify(categoryImages || {})); }
     function loadCategoryImages() { try { const raw=localStorage.getItem(CATS_IMAGES_KEY); if (raw) { const obj=JSON.parse(raw); if (obj && typeof obj==='object') return obj; } } catch {} return {}; }
+    function saveCategoryLayouts() { localStorage.setItem(CATS_LAYOUT_KEY, JSON.stringify(categoryLayouts || {})); }
+    function loadCategoryLayouts() { try { const raw=localStorage.getItem(CATS_LAYOUT_KEY); if (raw) { const obj=JSON.parse(raw); if (obj && typeof obj==='object') return obj; } } catch {} return {}; }
 
     window.GH_OWNER = window.GH_OWNER || (window.DATA_REPO && window.DATA_REPO.owner) || '';
     window.GH_REPO = window.GH_REPO || (window.DATA_REPO && window.DATA_REPO.repo) || '';
@@ -129,7 +133,7 @@
       if (!Array.isArray(categories)) categories = [];
       const filtered = catQuery ? categories.filter(c => c.toLowerCase().includes(catQuery.toLowerCase())) : categories.slice();
       if (els.catsMeta) els.catsMeta.textContent = `عدد الفئات: ${filtered.length}`;
-      els.catsList.innerHTML = filtered.map((c,i)=>{ const realIdx = categories.indexOf(c); const isFirst = realIdx===0; const isLast = realIdx===categories.length-1; return `
+      els.catsList.innerHTML = filtered.map((c,i)=>{ const realIdx = categories.indexOf(c); const isFirst = realIdx===0; const isLast = realIdx===categories.length-1; const spanVal = Number(categoryLayouts && categoryLayouts[c] && categoryLayouts[c].span) || 1; const heightVal = Number(categoryLayouts && categoryLayouts[c] && categoryLayouts[c].height) || 48; return `
         <li class="cat-item">
           <div class="cat-left">
             <img src="${(() => { const s = resolveAssetUrl((categoryImages && categoryImages[c]) || ''); return s; })()}" alt="صورة ${c}" class="cat-thumb" onerror="this.style.display='none'" style="${(() => { const s = resolveAssetUrl((categoryImages && categoryImages[c]) || ''); return s ? '' : 'display:none;'; })()}" />
@@ -140,6 +144,17 @@
             <button type="button" class="btn-icon ${isLast?'opacity-50':''}" ${isLast?'disabled':''} data-action="moveDown" data-index="${realIdx}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M19 12l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             <button type="button" class="btn-icon" data-action="uploadImg" data-name="${c}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 20h16M12 4v12M7 9l5-5 5 5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>رفع</span></button>
             ${(categoryImages && categoryImages[c]) ? `<button type="button" class="btn-icon" data-action="removeImg" data-name="${c}"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\"><path d=\"M19 7l-1 12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 7m3-3h8m-5 4v8m4-8v8\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg><span>حذف الصورة</span></button>` : ''}
+            <label class="text-xs text-gray-600">العرض</label>
+            <select class="input" data-name="${c}" data-action="setSpan">
+              <option value="1" ${spanVal===1?'selected':''}>نصف</option>
+              <option value="2" ${spanVal===2?'selected':''}>كامل</option>
+            </select>
+            <label class="text-xs text-gray-600">الارتفاع</label>
+            <select class="input" data-name="${c}" data-action="setHeight">
+              <option value="40" ${heightVal===40?'selected':''}>قصير</option>
+              <option value="48" ${heightVal===48?'selected':''}>متوسط</option>
+              <option value="64" ${heightVal===64?'selected':''}>طويل</option>
+            </select>
             <button type="button" class="btn-icon" data-action="rename" data-name="${c}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>إعادة تسمية</span></button>
             <button type="button" class="btn-icon btn-danger" data-action="delete" data-name="${c}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 7l-1 12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 7m3-3h8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>حذف</span></button>
           </div>
@@ -150,9 +165,9 @@
     els.catsList.addEventListener('click',(e)=>{ const btn = e.target.closest('button'); if (!btn) return; const action = btn.getAttribute('data-action'); const oldName = btn.getAttribute('data-name');
       if (action==='uploadImg') { pendingCatImageName = oldName; els.catImageFileInput.click(); return; }
       if (action==='removeImg') { if (categoryImages && categoryImages[oldName]) { delete categoryImages[oldName]; saveCategoryImages(); renderCatsList(); } return; }
-      if (action==='rename') { const newName = prompt('الاسم الجديد للفئة:', oldName); if (!newName) return; const finalName = newName.trim(); if (!finalName || finalName===oldName) return; if (categories.includes(finalName)) { alert('اسم الفئة موجود بالفعل.'); return; } const idx = categories.indexOf(oldName); if (idx>-1) { categories[idx]=finalName; if (categoryImages && categoryImages[oldName]) { categoryImages[finalName]=categoryImages[oldName]; delete categoryImages[oldName]; saveCategoryImages(); } saveCategories(); renderCatsList(); } return; }
+      if (action==='rename') { const newName = prompt('الاسم الجديد للفئة:', oldName); if (!newName) return; const finalName = newName.trim(); if (!finalName || finalName===oldName) return; if (categories.includes(finalName)) { alert('اسم الفئة موجود بالفعل.'); return; } const idx = categories.indexOf(oldName); if (idx>-1) { categories[idx]=finalName; if (categoryImages && categoryImages[oldName]) { categoryImages[finalName]=categoryImages[oldName]; delete categoryImages[oldName]; saveCategoryImages(); } if (categoryLayouts && categoryLayouts[oldName]) { categoryLayouts[finalName]=categoryLayouts[oldName]; delete categoryLayouts[oldName]; saveCategoryLayouts(); } saveCategories(); renderCatsList(); } return; }
       if (action==='moveUp' || action==='moveDown') { const idx = Number(btn.getAttribute('data-index')); if (!Number.isInteger(idx)) return; if (action==='moveUp' && idx>0) { const tmp = categories[idx-1]; categories[idx-1] = categories[idx]; categories[idx] = tmp; } else if (action==='moveDown' && idx<categories.length-1) { const tmp = categories[idx+1]; categories[idx+1] = categories[idx]; categories[idx] = tmp; } saveCategories(); renderCatsList(); return; }
-      if (action==='delete') { const isDeletingFallback = oldName===FALLBACK_CATEGORY; const nextCats = categories.filter(c=>c!==oldName); let replacement=''; if (nextCats.length) { replacement = (!isDeletingFallback && nextCats.includes(FALLBACK_CATEGORY)) ? FALLBACK_CATEGORY : nextCats[0]; } const msg = replacement ? `سيتم حذف الفئة "${oldName}". سيتم نقل الأصناف إلى "${replacement}".` : `سيتم حذف الفئة "${oldName}".`; if (!confirm(msg)) return; categories = nextCats; if (categoryImages && categoryImages[oldName]) { delete categoryImages[oldName]; saveCategoryImages(); } saveCategories(); renderCatsList(); }
+      if (action==='delete') { const isDeletingFallback = oldName===FALLBACK_CATEGORY; const nextCats = categories.filter(c=>c!==oldName); let replacement=''; if (nextCats.length) { replacement = (!isDeletingFallback && nextCats.includes(FALLBACK_CATEGORY)) ? FALLBACK_CATEGORY : nextCats[0]; } const msg = replacement ? `سيتم حذف الفئة "${oldName}". سيتم نقل الأصناف إلى "${replacement}".` : `سيتم حذف الفئة "${oldName}".`; if (!confirm(msg)) return; categories = nextCats; if (categoryImages && categoryImages[oldName]) { delete categoryImages[oldName]; saveCategoryImages(); } if (categoryLayouts && categoryLayouts[oldName]) { delete categoryLayouts[oldName]; saveCategoryLayouts(); } saveCategories(); renderCatsList(); }
     });
 
     if (els.catSearch) { els.catSearch.addEventListener('input', () => { catQuery = els.catSearch.value || ''; renderCatsList(); }); }
@@ -162,7 +177,7 @@
         const original = els.catsUploadStatus ? els.catsUploadStatus.textContent : '';
         if (els.catsUploadStatus) els.catsUploadStatus.textContent = 'جارِ الحفظ...';
         try {
-          const payload = Array.isArray(categories) ? categories.map(name => ({ name, imageUrl: (categoryImages && categoryImages[name]) || '' })) : [];
+          const payload = Array.isArray(categories) ? categories.map(name => ({ name, imageUrl: (categoryImages && categoryImages[name]) || '', span: (categoryLayouts && Number(categoryLayouts[name]?.span))===2?2:1, height: Number(categoryLayouts && categoryLayouts[name]?.height)||48 })) : [];
           const resp = await fetch(SAVE_CATS_ENDPOINT, { method:'POST', headers:{'Content-Type':'application/json', ...apiAuthHeader()}, body: JSON.stringify(payload) });
           const json = await resp.json().catch(()=>({}));
           if (!resp.ok || !json.ok) throw new Error(json.error||'فشل الحفظ');
@@ -181,12 +196,14 @@
       await initDataRepoConfig();
       categories = loadCategories();
       categoryImages = loadCategoryImages();
+      categoryLayouts = loadCategoryLayouts();
       if (!categories.length) {
         const fromAssets = await loadCategoriesFromAssets();
         if (Array.isArray(fromAssets) && fromAssets.length) {
           const names = [];
-          fromAssets.forEach(cat => { if (typeof cat==='string') { names.push(cat); } else if (cat && typeof cat==='object') { const name=(cat.name||'').trim(); if (name) { names.push(name); if (cat.imageUrl) categoryImages[name]=cat.imageUrl; } } });
+          fromAssets.forEach(cat => { if (typeof cat==='string') { names.push(cat); } else if (cat && typeof cat==='object') { const name=(cat.name||'').trim(); if (name) { names.push(name); if (cat.imageUrl) categoryImages[name]=cat.imageUrl; if (cat.span || cat.height) { categoryLayouts[name] = { span: Number(cat.span)||1, height: Number(cat.height)||48 }; } } } });
           categories = names; saveCategories(); saveCategoryImages();
+          saveCategoryLayouts();
         } else {
           const items = await loadItemsForDerive(); categories = deriveCategoriesFromItems(items); saveCategories();
         }
