@@ -122,7 +122,7 @@
       `https://cdn.jsdelivr.net/gh/${window.GH_OWNER}/${window.GH_REPO}@${window.GH_BRANCH}/${p}?t=${t}`
     ]; };
     async function initDataRepoConfig(){ if (isGhEnabled()) return; try { const resp=await fetch('/api/config'); if (resp.ok){ const j=await resp.json(); if (j&&j.ok&&j.owner&&j.repo){ window.GH_OWNER=j.owner; window.GH_REPO=j.repo; window.GH_BRANCH=j.branch||'main'; } } } catch {} }
-    async function loadJson(path){ if (isGhEnabled()){ const urls=ghUrls(path); for(let i=0;i<urls.length;i++){ try{ const r=await fetch(urls[i],{cache:'no-store'}); if(r.ok) return await r.json(); } catch{} } } const r=await fetch(path,{cache:'no-store'}); if(!r.ok) throw new Error('failed_to_load_'+path); return await r.json(); }
+    async function loadJson(path){ if (isGhEnabled()){ const urls=ghUrls(path); for(let i=0;i<urls.length;i++){ try{ const r=await fetch(urls[i],{cache:'no-store'}); if(r.ok) return await r.json(); } catch{} } } const u=String(path||''); const b=u+(u.includes('?')?'&':'?')+'t='+Date.now(); const r=await fetch(b,{cache:'no-store'}); if(!r.ok) throw new Error('failed_to_load_'+u); return await r.json(); }
     function resolveAssetUrl(path){ const raw=String(path||'').trim(); if(!raw) return ''; if(/^(?:https?:)?\/\//i.test(raw)) return raw; if(!isGhEnabled()) return raw; const rel=raw.replace(/^\//,''); if(!/^assets\//.test(rel)) return raw; return `https://raw.githubusercontent.com/${window.GH_OWNER}/${window.GH_REPO}/${window.GH_BRANCH}/${rel}`; }
     function apiAuthHeader(){ try{ const s=localStorage.getItem('menu_api_secret')||''; return s?{Authorization:`Bearer ${s}`}:{}} catch{ return {}; } }
 

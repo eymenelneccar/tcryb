@@ -397,182 +397,26 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
     <!-- Note: In the design provided, the search icon is on the hero image. We will simulate that structure. -->
     
     <!-- Main Content Area -->
-    <main class="w-full max-w-md mx-auto bg-[#fff8f0] min-h-screen shadow-2xl overflow-hidden" id="app-content">
-                <div class="relative w-full h-[45vh] sm:h-[500px]">
-                    <img src="assets/images/17a7a6365dcde068822d456917306995.jpg" class="w-full h-full object-cover brightness-90" alt="Hero">
-                    
-                    <!-- Header Overlay -->
-                    <div class="absolute top-0 left-0 right-0 p-5 flex justify-between items-start z-10 text-white/90">
-                        <span class="material-symbols-outlined text-2xl drop-shadow-md">search</span>
-                        <div class="font-bold text-sm tracking-wider drop-shadow-md opacity-80">...GRAFFITI BURGER | BUSRA</div>
-                    </div>
+    <main class="w-full max-w-md mx-auto bg-[#fff8f0] min-h-screen shadow-2xl overflow-hidden" id="app-content"></main>
 
-                    <!-- Logo Overlay (Center) -->
-                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24">
-                        <!-- Simulated logo using gen or text -->
-                         <!-- Using a generic burger logo representation -->
-                        <div class="w-full h-full relative flex flex-col items-center justify-center">
-                            <h1 class="font-black text-3xl text-orange-500 text-center leading-none text-shadow-lg" style="text-shadow: 2px 2px 0 #000;">GRAFFITI<br><span class="text-white">BURGER</span></h1>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Feedback Link -->
-                <div class="w-full text-center py-3 bg-[#fff8f0]">
-                    <button class="flex items-center justify-center gap-2 text-[#3e2723] text-sm font-bold hover:opacity-70 transition-opacity mx-auto">
-                        <span class="material-symbols-outlined text-lg">edit_note</span>
-                        استبيان الرضا
-                    </button>
-                </div>
 
-                <!-- Welcome Card -->
-                <div class="px-4 mb-6">
-                    <div class="bg-white rounded-lg shadow-md p-4 text-center">
-                        <h2 class="font-bold text-[#3e2723] text-lg mb-1">جرافيتي يرحب بزبائنه الكرام</h2>
-                        <p class="text-[10px] text-gray-500 font-semibold">لا تنسى متابعتنا على انستغرام</p>
-                    </div>
-                </div>
 
-                <!-- Categories Grid -->
-                <div class="grid grid-cols-2 gap-3 px-4 pb-12">
-            
-                        <div onclick="openCategory('beef')" class="col-span-2 h-48 relative rounded-2xl overflow-hidden shadow-lg cursor-pointer group grid-item">
-                            <img src="assets/images/17a7a6365dcde068822d456917306995.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="برجر لحم">
-                            <!-- Gradient Overlay -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                            
-                            <!-- Text Positioned at bottom center/right based on design -->
-                            <div class="absolute bottom-0 w-full p-3 text-center">
-                                <h3 class="text-white font-black text-xl md:text-2xl text-overlay-shadow">برجر لحم</h3>
-                            </div>
-                        </div>
-                    
-                        <div onclick="openCategory('sandwich')" class="col-span-1 h-48 relative rounded-2xl overflow-hidden shadow-lg cursor-pointer group grid-item">
-                            <img src="assets/images/17a7a6365dcde068822d456917306995.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="ساندويش">
-                            <!-- Gradient Overlay -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                            
-                            <!-- Text Positioned at bottom center/right based on design -->
-                            <div class="absolute bottom-0 w-full p-3 text-center">
-                                <h3 class="text-white font-black text-xl md:text-2xl text-overlay-shadow">ساندويش</h3>
-                            </div>
-                        </div>
-                    
-                        <div onclick="openCategory('rizzo')" class="col-span-1 h-48 relative rounded-2xl overflow-hidden shadow-lg cursor-pointer group grid-item">
-                            <img src="assets/images/17a7a6365dcde068822d456917306995.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="جرافيتي ريزو">
-                            <!-- Gradient Overlay -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                            
-                            <!-- Text Positioned at bottom center/right based on design -->
-                            <div class="absolute bottom-0 w-full p-3 text-center">
-                                <h3 class="text-white font-black text-xl md:text-2xl text-overlay-shadow">جرافيتي ريزو</h3>
-                            </div>
-                        </div>
-                    
-                        <div onclick="openCategory('chicken')" class="col-span-2 h-48 relative rounded-2xl overflow-hidden shadow-lg cursor-pointer group grid-item">
-                            <img src="assets/images/17a7a6365dcde068822d456917306995.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="برجر دجاج">
-                            <!-- Gradient Overlay -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                            
-                            <!-- Text Positioned at bottom center/right based on design -->
-                            <div class="absolute bottom-0 w-full p-3 text-center">
-                                <h3 class="text-white font-black text-xl md:text-2xl text-overlay-shadow">برجر دجاج</h3>
-                            </div>
-                        </div>
-                    
-                        <div onclick="openCategory('fries')" class="col-span-1 h-48 relative rounded-2xl overflow-hidden shadow-lg cursor-pointer group grid-item">
-                            <img src="assets/images/17a7a6365dcde068822d456917306995.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="فرايز">
-                            <!-- Gradient Overlay -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                            
-                            <!-- Text Positioned at bottom center/right based on design -->
-                            <div class="absolute bottom-0 w-full p-3 text-center">
-                                <h3 class="text-white font-black text-xl md:text-2xl text-overlay-shadow">فرايز</h3>
-                            </div>
-                        </div>
-                    
-                        <div onclick="openCategory('sides')" class="col-span-1 h-48 relative rounded-2xl overflow-hidden shadow-lg cursor-pointer group grid-item">
-                            <img src="assets/images/17a7a6365dcde068822d456917306995.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="طلبات جانبية">
-                            <!-- Gradient Overlay -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                            
-                            <!-- Text Positioned at bottom center/right based on design -->
-                            <div class="absolute bottom-0 w-full p-3 text-center">
-                                <h3 class="text-white font-black text-xl md:text-2xl text-overlay-shadow">طلبات جانبية</h3>
-                            </div>
-                        </div>
-                    
-                        <div onclick="openCategory('boxes')" class="col-span-2 h-48 relative rounded-2xl overflow-hidden shadow-lg cursor-pointer group grid-item">
-                            <img src="assets/images/17a7a6365dcde068822d456917306995.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Boxes">
-                            <!-- Gradient Overlay -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                            
-                            <!-- Text Positioned at bottom center/right based on design -->
-                            <div class="absolute bottom-0 w-full p-3 text-center">
-                                <h3 class="text-white font-black text-xl md:text-2xl text-overlay-shadow">Boxes</h3>
-                            </div>
-                        </div>
-                    
-                        <div onclick="openCategory('drinks')" class="col-span-1 h-48 relative rounded-2xl overflow-hidden shadow-lg cursor-pointer group grid-item">
-                            <img src="assets/images/17a7a6365dcde068822d456917306995.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="مشروبات غازية">
-                            <!-- Gradient Overlay -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                            
-                            <!-- Text Positioned at bottom center/right based on design -->
-                            <div class="absolute bottom-0 w-full p-3 text-center">
-                                <h3 class="text-white font-black text-xl md:text-2xl text-overlay-shadow">مشروبات غازية</h3>
-                            </div>
-                        </div>
-                    
-                        <div onclick="openCategory('mojito')" class="col-span-1 h-48 relative rounded-2xl overflow-hidden shadow-lg cursor-pointer group grid-item">
-                            <img src="assets/images/17a7a6365dcde068822d456917306995.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="موهيتو">
-                            <!-- Gradient Overlay -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                            
-                            <!-- Text Positioned at bottom center/right based on design -->
-                            <div class="absolute bottom-0 w-full p-3 text-center">
-                                <h3 class="text-white font-black text-xl md:text-2xl text-overlay-shadow">موهيتو</h3>
-                            </div>
-                        </div>
-                    
-                        <div onclick="openCategory('strips')" class="col-span-1 h-48 rounded-2xl overflow-hidden shadow-lg cursor-pointer grid-item relative flex items-center justify-center" style="background-color: #3e1c14;">
-                            <h3 class="text-white font-black text-2xl z-10">ستريس</h3>
-                        </div>
-                    
-                </div>
-
-                <!-- Footer Info -->
-                <div class="text-center pb-24 pt-4">
-                    <div class="inline-block p-2 rounded-full border-2 border-[#3e2723] mb-2 text-[#3e2723]">
-                        <img src="LOGO.png" alt="Logo" class="w-8 h-8 block object-contain" />
-                    </div>
-                    <h3 class="font-bold text-[#3e2723] text-sm tracking-widest mb-4">GRAFFITI BURGER | BUSRA</h3>
-                    
-                    <button class="px-8 py-1.5 border border-[#3e2723] text-[#3e2723] rounded-full text-sm hover:bg-[#3e2723] hover:text-white transition-colors mb-8" onclick="openDirections()">
-                        الطريق الينا
-                    </button>
-
-                    <div class="text-[10px] text-gray-400 font-sans">
-                        <p>تم صنعها بواسطة | İQR MENU</p>
-                        <p class="mt-1">© 2025</p>
-                    </div>
-                </div>
-            </main>
 
     <!-- Floating Order Button (FAB) -->
     <div class="fixed bottom-6 right-6 z-40" id="fab-container">
-        <button class="bg-[#e67e22] text-white w-12 h-16 rounded-lg shadow-xl flex flex-col items-center justify-center relative hover:bg-[#d35400] transition-colors border-2 border-white" onclick="openCart()">
-            <span class="material-symbols-outlined text-2xl mb-1">assignment</span>
-            <span class="text-[10px] font-bold">طلب</span>
-            <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center transform scale-0 transition-transform duration-200 border-2 border-white" id="cart-badge">0</span>
+        <button class="bg-[#e67e22] text-white w-16 h-20 rounded-2xl shadow-2xl flex flex-col items-center justify-center relative hover:bg-[#d35400] transition-colors transition-transform duration-200 active:scale-95 hover:scale-105 border-2 border-white" onclick="openCart()">
+            <span class="material-symbols-outlined text-3xl mb-1">assignment</span>
+            <span class="text-[11px] font-bold">طلب</span>
+            <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold w-7 h-7 rounded-full flex items-center justify-center transform scale-0 transition-transform duration-200 border-2 border-white" id="cart-badge">0</span>
         </button>
     </div>
 
     
 
     <!-- Cart Modal -->
-    <div class="modal hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" id="cart-modal">
-        <div class="modal-content bg-[#fff8f0] w-full max-w-md h-[95vh] sm:h-auto sm:max-h-[90vh] sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col relative">
+    <div class="modal hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" id="cart-modal">
+        <div class="modal-content bg-[#fff8f0] w-full h-screen sm:h-screen sm:max-h-none sm:rounded-none rounded-none shadow-2xl overflow-hidden flex flex-col relative">
             <!-- Modal Header -->
             <div class="bg-[#3e2723] text-[#f28c28] p-4 flex justify-between items-center shadow-md">
                 <button class="flex items-center gap-1 font-bold text-lg hover:text-white transition-colors" onclick="closeCart()">
@@ -710,7 +554,18 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
 
         // --- Functions ---
 
+        window.GH_OWNER = window.GH_OWNER || '';
+        window.GH_REPO = window.GH_REPO || '';
+        window.GH_BRANCH = window.GH_BRANCH || 'main';
+        const isGhEnabled = () => Boolean(window.GH_OWNER && window.GH_REPO);
+        const ghUrls = (path) => { const t=Date.now(); const p=String(path||'').replace(/^\//,''); return [
+            `https://raw.githubusercontent.com/${window.GH_OWNER}/${window.GH_REPO}/${window.GH_BRANCH}/${p}?t=${t}`,
+            `https://cdn.jsdelivr.net/gh/${window.GH_OWNER}/${window.GH_REPO}@${window.GH_BRANCH}/${p}?t=${t}`
+        ]; };
+        async function initDataRepoConfig(){ if (isGhEnabled()) return; try { const resp=await fetch('/api/config'); if (resp.ok){ const j=await resp.json(); if (j&&j.ok&&j.owner&&j.repo){ window.GH_OWNER=j.owner; window.GH_REPO=j.repo; window.GH_BRANCH=j.branch||'main'; } } } catch {} }
+
         async function init() {
+            await initDataRepoConfig();
             await initFromAssets();
             await renderHome();
             updateFab();
@@ -723,8 +578,10 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
             currentCategory = null;
 
             // 1. Hero Section (Image covering top)
-            const heroSrc = resolveAssetUrl(window.HERO_IMAGE || 'assets/images/17a7a6365dcde068822d456917306995.jpg');
-            let html = `
+            const heroSrc = resolveAssetUrl(window.HERO_IMAGE || '');
+            let html = '';
+            if (heroSrc) {
+                html += `
                 <div class="relative w-full h-[45vh] sm:h-[500px]">
                     <img src="${heroSrc}" 
                          class="w-full h-full object-cover brightness-90" alt="Hero">
@@ -737,14 +594,15 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
 
                     <!-- Logo Overlay (Center) -->
                     <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24">
-                        <!-- Simulated logo using gen or text -->
-                         <!-- Using a generic burger logo representation -->
                         <div class="w-full h-full relative flex flex-col items-center justify-center">
                             <h1 class="font-black text-3xl text-orange-500 text-center leading-none text-shadow-lg" style="text-shadow: 2px 2px 0 #000;">GRAFFITI<br><span class="text-white">BURGER</span></h1>
                         </div>
                     </div>
                 </div>
+                `;
+            }
 
+            html += `
                 <!-- Feedback Link -->
                 <div class="w-full text-center py-3 bg-[#fff8f0]">
                     <button class="flex items-center justify-center gap-2 text-[#3e2723] text-sm font-bold hover:opacity-70 transition-opacity mx-auto" onclick="openFeedback()">
@@ -889,6 +747,14 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
                 })) : [];
             } catch { categories = []; }
             try {
+                const branches = await loadJson('assets/branches.json');
+                const keys = branches ? Object.keys(branches) : [];
+                const k0 = keys[0];
+                const b = k0 ? branches[k0] : null;
+                window.BRANCH_WHATSAPP = (b && b.whatsapp) ? String(b.whatsapp).trim() : '';
+                window.BRANCH_PHONE = (b && b.phone) ? String(b.phone).trim() : '';
+            } catch {}
+            try {
                 const items = await loadJson('assets/menu.json');
                 products = {};
                 (Array.isArray(items) ? items : []).forEach(it => {
@@ -907,15 +773,27 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
         }
 
         async function loadJson(path) {
-            const r = await fetch(path, { cache: 'no-store' });
-            if (!r.ok) throw new Error('failed_to_load_' + path);
+            if (isGhEnabled()) {
+                const urls = ghUrls(path);
+                for (let i=0;i<urls.length;i++) {
+                    try { const r = await fetch(urls[i], { cache: 'no-store' }); if (r.ok) return await r.json(); } catch {}
+                }
+            }
+            const url = String(path || '');
+            const bust = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+            const r = await fetch(bust, { cache: 'no-store' });
+            if (!r.ok) throw new Error('failed_to_load_' + url);
             return await r.json();
         }
 
         function resolveAssetUrl(path) {
-            const p = String(path || '').trim();
-            if (!p) return '';
-            return p;
+            const raw = String(path || '').trim();
+            if (!raw) return '';
+            if (/^(?:https?:)?\/\//i.test(raw)) return raw;
+            if (!isGhEnabled()) return raw;
+            const rel = raw.replace(/^\//,'');
+            if (!/^assets\//.test(rel)) return raw;
+            return `https://raw.githubusercontent.com/${window.GH_OWNER}/${window.GH_REPO}/${window.GH_BRANCH}/${rel}`;
         }
 
         // Render Category Page
@@ -1112,7 +990,9 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
             msg += `*المجموع الكلي: ${total} IQD*`;
 
             const encodedMsg = encodeURIComponent(msg);
-            const whatsappUrl = `https://wa.me/9647800000000?text=${encodedMsg}`; // Placeholder number
+            const waStored = (localStorage.getItem('restaurant_whatsapp_number') || '').trim();
+            const waNumber = waStored || window.BRANCH_WHATSAPP || '9647800000000';
+            const whatsappUrl = `https://wa.me/${waNumber}?text=${encodedMsg}`;
 
             window.open(whatsappUrl, '_blank');
         }
