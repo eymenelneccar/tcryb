@@ -540,6 +540,32 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
             </div>
         </div>
     </div>
+    <div class="modal hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" id="item-preview-modal">
+        <div class="modal-content bg-[#fff8f0] w-full max-w-md h-[80vh] sm:h-auto sm:max-h-[85vh] sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col relative">
+            <div class="bg-[#3e2723] text-[#f28c28] p-4 flex justify-between items-center shadow-md">
+                <button class="flex items-center gap-1 font-bold text-lg hover:text-white transition-colors" onclick="closeItemPreview()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+                <h2 id="item-preview-name" class="text-2xl font-black text-white"></h2>
+            </div>
+            <div class="flex-1 overflow-y-auto">
+                <div class="relative h-64 w-full bg-gray-100">
+                    <img id="item-preview-img" src="" class="w-full h-full object-cover" alt="">
+                </div>
+                <div class="p-4 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span id="item-preview-price" class="text-[#f28c28] font-bold text-lg"></span>
+                    </div>
+                    <p id="item-preview-desc" class="text-gray-700 text-sm"></p>
+                </div>
+            </div>
+            <div class="p-4 bg-[#fff8f0] border-t border-gray-200">
+                <button id="item-preview-add-btn" class="w-full bg-[#f28c28] hover:bg-[#d35400] text-white font-bold py-3 rounded-lg shadow-lg flex items-center justify-center gap-2 text-lg transition-transform active:scale-95">
+                    <span class="material-symbols-outlined">add_shopping_cart</span> أضف للسلة
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Data & Scripts -->
     <script>
@@ -830,7 +856,7 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
             items.forEach(item => {
                 html += `
                     <div class="bg-white rounded-xl overflow-hidden shadow-lg flex flex-col transform transition-all duration-300 hover:-translate-y-1">
-                        <div class="relative h-56 w-full bg-gray-100 overflow-hidden">
+                        <div class="relative h-56 w-full bg-gray-100 overflow-hidden cursor-pointer" onclick="openItemPreview('${item.id}')">
                              <img src="${item.img}" class="w-full h-full object-cover" alt="${item.name}">
                         </div>
                         <div class="p-4 bg-gradient-to-r from-[#3e2723] to-[#5d4037] text-white">
@@ -912,6 +938,28 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
         function closeCart() {
             const modal = document.getElementById('cart-modal');
             modal.classList.add('hidden');
+        }
+
+        function openItemPreview(id) {
+            const item = getProductDetails(id);
+            if (!item) return;
+            const modal = document.getElementById('item-preview-modal');
+            const img = document.getElementById('item-preview-img');
+            const nameEl = document.getElementById('item-preview-name');
+            const priceEl = document.getElementById('item-preview-price');
+            const descEl = document.getElementById('item-preview-desc');
+            if (img) img.src = item.img;
+            if (nameEl) nameEl.textContent = item.name;
+            if (priceEl) priceEl.textContent = (item.price || 0) + ' IQD';
+            if (descEl) descEl.textContent = item.desc || '';
+            const btn = document.getElementById('item-preview-add-btn');
+            if (btn) btn.onclick = function(){ addToCart(id); closeItemPreview(); };
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeItemPreview() {
+            const modal = document.getElementById('item-preview-modal');
+            if (modal) modal.classList.add('hidden');
         }
 
         function getProductDetails(id) {
