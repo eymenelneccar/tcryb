@@ -215,7 +215,7 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
 
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Graffiti Burger Najaf | جرافيتي برجر</title>
+    <title>Graffiti Burger Basra | جرافيتي برجر</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
@@ -523,6 +523,7 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
                     <button class="w-10 h-10 rounded-full border flex items-center justify-center text-[#f28c28]" data-value="4"><span class="material-symbols-outlined">star_border</span></button>
                     <button class="w-10 h-10 rounded-full border flex items-center justify-center text-[#f28c28]" data-value="5"><span class="material-symbols-outlined">star_border</span></button>
                 </div>
+                <div id="rating-thanks" class="text-center font-bold text-[#3e2723] mt-2 hidden">شكراً على التقييم</div>
                 <div>
                     <label class="block text-right font-bold mb-1 text-[#3e2723]">تعليق (اختياري)</label>
                     <textarea class="w-full bg-white border border-gray-400 rounded-lg p-2 text-right focus:outline-none focus:border-[#f28c28]" id="feedback-comment" rows="3"></textarea>
@@ -685,6 +686,7 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
         }
 
         const FEEDBACK_ENDPOINT = '/api/save-feedback';
+        function apiAuthHeader(){ try{ const s=(localStorage.getItem('menu_api_secret')||'').trim(); return s?{Authorization:`Bearer ${s}`}:{}} catch{ return {}; } }
         let feedbackRating = 0;
         function openFeedback() { document.getElementById('feedback-modal').classList.remove('hidden'); }
         function closeFeedback() { document.getElementById('feedback-modal').classList.add('hidden'); }
@@ -702,10 +704,20 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
         function renderFeedbackStars() {
             const wrap = document.getElementById('rating-stars');
             if (!wrap) return;
-            const stars = Array.from(wrap.querySelectorAll('button span.material-symbols-outlined'));
-            stars.forEach((el, idx) => {
-                el.textContent = (idx + 1) <= feedbackRating ? 'star' : 'star_border';
+            const buttons = Array.from(wrap.querySelectorAll('button'));
+            buttons.forEach((btn, idx) => {
+                const icon = btn.querySelector('span.material-symbols-outlined');
+                const active = (idx + 1) <= feedbackRating;
+                if (icon) icon.textContent = active ? 'star' : 'star_border';
+                btn.style.backgroundColor = active ? '#f28c28' : '';
+                btn.style.color = active ? '#ffffff' : '#f28c28';
+                btn.style.borderColor = active ? '#f28c28' : '#D1D5DB';
             });
+            const thanks = document.getElementById('rating-thanks');
+            if (thanks) {
+                if (feedbackRating > 0) thanks.classList.remove('hidden');
+                else thanks.classList.add('hidden');
+            }
         }
         async function submitFeedback() {
             if (feedbackRating < 1) { alert('اختر تقييم من 1 إلى 5'); return; }
@@ -716,12 +728,11 @@ wb);O(IMG_SEARCH_ATTRIBUTION_MAP,Pd);O(IMG_GEN_REPLACE_MAP,fa.A);X();jf();h.A=0}
                 timestamp: new Date().toISOString()
             };
             try {
-                const resp = await fetch(FEEDBACK_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const resp = await fetch(FEEDBACK_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json', ...apiAuthHeader() }, body: JSON.stringify(payload) });
                 const json = await resp.json().catch(() => ({}));
                 if (!resp.ok || !json.ok) throw new Error(json.error || 'failed');
-                alert('شكراً على تقييمك');
-                feedbackRating = 0;
-                renderFeedbackStars();
+                const thanks = document.getElementById('rating-thanks');
+                if (thanks) { thanks.textContent = 'شكراً على التقييم'; thanks.classList.remove('hidden'); }
                 const c = document.getElementById('feedback-comment'); if (c) c.value = '';
                 const n = document.getElementById('feedback-name'); if (n) n.value = '';
                 closeFeedback();

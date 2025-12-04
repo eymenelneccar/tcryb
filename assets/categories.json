@@ -1,32 +1,62 @@
 [
   {
-    "name": "جرافتي ريزو"
+    "name": "جرافتي ريزو",
+    "imageUrl": "/assets/images/1764785720017-IMG_2124.jpeg.jpg",
+    "span": 2,
+    "height": 64
   },
   {
-    "name": "برجر لحم"
+    "name": "برجر لحم",
+    "imageUrl": "/assets/images/1764785788346-IMG_2128.jpeg.jpg",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "برجر دجاج"
+    "name": "برجر دجاج",
+    "imageUrl": "/assets/images/1764785805023-IMG_2126.jpeg.jpg",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "ساندويش"
+    "name": "ساندويش",
+    "imageUrl": "/assets/images/1764785904484-IMG_2129.jpeg.jpg",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "طلبات جانبية"
+    "name": "طلبات جانبية",
+    "imageUrl": "/assets/images/1764785914149-IMG_2130.jpeg.jpg",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "فرايز"
+    "name": "فرايز",
+    "imageUrl": "/assets/images/1764785948358-IMG_2123.jpeg.jpg",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "Boxes"
+    "name": "Boxes",
+    "imageUrl": "/assets/images/1764785961303-IMG_2121.jpeg.jpg",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "موهيتو"
+    "name": "موهيتو",
+    "imageUrl": "/assets/images/1764785997227-IMG_2127.jpeg.jpg",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "ميلك شيك"
+    "name": "ميلك شيك",
+    "imageUrl": "/assets/images/1764786398925-IMG_2137.jpeg.jpg",
+    "span": 1,
+    "height": 48
   },
   {
-    "name": "كنتاكي"
+    "name": "كنتاكي",
+    "imageUrl": "/assets/images/1764786410724-IMG_2136.jpeg.jpg",
+    "span": 1,
+    "height": 48
   }
 ]

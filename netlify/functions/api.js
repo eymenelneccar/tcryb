@@ -63,6 +63,35 @@ exports.handler = async (event) => {
       if (!r.ok) return error(500, r.error || 'save_failed');
       return json({ ok: true, path: `/${key}` });
     }
+    if (route.includes('/save-feedback') && event.httpMethod === 'POST') {
+      const p = JSON.parse(bodyText || '{}');
+      const entry = {
+        rating: Number(p.rating || 0),
+        comment: String(p.comment || ''),
+        name: String(p.name || ''),
+        timestamp: String(p.timestamp || new Date().toISOString())
+      };
+      let arr = [];
+      try {
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/assets/feedback.json?ref=${branch}`;
+        const cur = await fetch(url, { headers: { 'Authorization': `token ${token}`, 'User-Agent':'netlify-functions', 'Accept':'application/vnd.github.v3+json' } });
+        if (cur.ok) {
+          const j = await cur.json();
+          if (j && j.content) {
+            const txt = Buffer.from(j.content, 'base64').toString('utf-8');
+            const parsed = JSON.parse(txt);
+            arr = Array.isArray(parsed) ? parsed : [];
+          }
+        }
+      } catch {}
+      arr.push(entry);
+      const str = JSON.stringify(arr, null, 2);
+      const content = Buffer.from(str).toString('base64');
+      const key = 'assets/feedback.json';
+      const r = await putFile(key, content);
+      if (!r.ok) return error(500, r.error || 'save_failed');
+      return json({ ok: true, path: `/${key}` });
+    }
     if (route.includes('/save-categories') && event.httpMethod === 'POST') {
       const p = JSON.parse(bodyText || '[]');
       const str = JSON.stringify(Array.isArray(p) ? p : [], null, 2);
