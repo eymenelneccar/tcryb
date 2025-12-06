@@ -9,19 +9,25 @@
     "name": "ريزو فطرو شرائح اللحم",
     "category": "جرافتي ريزو",
     "price": 8000,
-    "id": 1764498313386
+    "id": 1764498313386,
+    "imageUrl": "/assets/images/1765059008930-0913c19f-023c-49ea-893f-e60adfcb423b.jpeg.jpg",
+    "description": ""
   },
   {
     "name": "ريزو مدخن",
     "category": "جرافتي ريزو",
     "price": 6500,
-    "id": 1764498313387
+    "id": 1764498313387,
+    "imageUrl": "/assets/images/1765058990705-9e497571-d1a9-4c6f-b9bb-927655992e12.jpeg.jpg",
+    "description": ""
   },
   {
     "name": "ريزو دجاج بالعسل",
     "category": "جرافتي ريزو",
     "price": 7000,
-    "id": 1764498313388
+    "id": 1764498313388,
+    "imageUrl": "/assets/images/1765058960383-41cf5727-6ac2-4f26-8fa8-4e07cfbec763.jpeg.jpg",
+    "description": ""
   },
   {
     "name": "ريزو كلاسيك",
@@ -33,7 +39,9 @@
     "name": "ريزو جرافتي",
     "category": "جرافتي ريزو",
     "price": 6500,
-    "id": 1764498313390
+    "id": 1764498313390,
+    "imageUrl": "/assets/images/1765059029396-c28a449b-eb1a-4fc9-be33-6d53f853d05b.jpeg.jpg",
+    "description": ""
   },
   {
     "name": "سموراي ريزو",
@@ -41,7 +49,7 @@
     "price": 6500,
     "description": "رز اصفر قطع دجاج مقرمش صوص الساموراي الحار شرائح الهالبينو المفروم",
     "id": 1764498313391,
-    "imageUrl": ""
+    "imageUrl": "/assets/images/1765059051891-aafcb863-490c-4171-b54c-9d9463ee8c02.jpeg.jpg"
   },
   {
     "name": "جرافيتي برجر مع البيض",
